@@ -1,0 +1,57 @@
+#For Keil
+obj/
+lst/
+
+#For IAR
+Debug/
+Release/
+settings/
+
+# For GCC
+!.cproject
+!.project
+
+.lock
+.location
+.markers
+version.ini
+.history/
+.mylyn/
+Packages/
+.settings/
+RemoteSystemsTempFiles/
+
+#Files
+*.log
+*.dep
+*.bak
+*.uvgui.*
+*.uvopt
+*.txt
+*.old
+*.bin
+*.obj
+*.orig
+*.ok
+*~
+*.o
+*.i
+*.lst
+*.map
+*.d
+*.crf
+*.axf
+*.out
+*.pbi
+*.cout
+*.browse
+*.scc
+*.ncb
+
+#Large stuff
+*.zip
+*.gz
+*.bz
+*.gzip
+*.7z
+*.rar

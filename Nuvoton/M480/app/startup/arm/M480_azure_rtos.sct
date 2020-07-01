@@ -1,0 +1,27 @@
+#! armcc -E
+
+#include "M480_memspec.h"
+
+/* Define boot stack size. After boot, it is then used for rtos kernel/interrupt stack. */
+#define BOOT_STACK_SIZE             0x1000
+
+LR_IROM1 ROM_APP_START ROM_APP_SIZE {
+    ER_IROM1 +0 {
+        *(RESET, +First)
+        *(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    RW_IRAM1 RAM_APP_START {
+        .ANY (+RW +ZI)
+    }
+
+    ARM_LIB_HEAP AlignExpr(+0, 8) EMPTY (RAM_APP_START + RAM_APP_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 8) - BOOT_STACK_SIZE) {
+    }
+  
+    ARM_LIB_STACK AlignExpr(+0, 8) EMPTY BOOT_STACK_SIZE {
+    }
+}
+
+ScatterAssert(LoadLimit(LR_IROM1) <= (ROM_APP_START + ROM_APP_SIZE))
+ScatterAssert(ImageLimit(ARM_LIB_STACK) <= (RAM_APP_START + RAM_APP_SIZE))
