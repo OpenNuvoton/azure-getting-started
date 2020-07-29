@@ -1,6 +1,12 @@
 #For Keil
 obj/
 lst/
+*.scvd
+*.Scr
+*.htm
+*.lib
+*.uvguix.*
+*.uvoptx
 
 #For IAR
 Debug/

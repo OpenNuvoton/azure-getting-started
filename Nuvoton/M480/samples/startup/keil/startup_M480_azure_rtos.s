@@ -208,6 +208,16 @@ Reset_Handler   PROC
                 LDR     R1, =0
                 STR     R1, [R0]
 
+                ; Copy from threadx/ports/cortex_m4/keil/example_build/tx_initialize_low_level.s
+                ; Its purpose needs to be further checked.
+                IF  {TARGET_FPU_VFP} = {TRUE}
+                LDR     r0, =0xE000ED88                         ; Pickup address of CPACR
+                LDR     r1, [r0]                                ; Pickup CPACR
+                MOV32   r2, 0x00F00000                          ; Build enable value
+                ORR     r1, r1, r2                              ; Or in enable value
+                STR     r1, [r0]                                ; Setup CPACR
+                ENDIF
+
                 LDR     R0, =__main
                 BX      R0
  
