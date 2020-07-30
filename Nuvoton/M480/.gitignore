@@ -61,3 +61,6 @@ RemoteSystemsTempFiles/
 *.gzip
 *.7z
 *.rar
+
+#Exclude list
+!samples/lib/**
