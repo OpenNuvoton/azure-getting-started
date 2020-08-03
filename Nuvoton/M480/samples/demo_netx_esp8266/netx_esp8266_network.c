@@ -22,52 +22,41 @@
 #include "nx_wifi.h"
 #include "nxd_dns.h"
 
-/* printf-like log output function */
-#ifndef NXESP_CFG_LOG_OUT
-#define NXESP_CFG_LOG_OUT(FMT, ...)                 \
-    do {                                            \
-        printf(FMT, ## __VA_ARGS__);                \
-    } while (0)
-#endif
-
 /* Prefixed log output function */
 #define NXESP_LOG_OUT(FMT, ...)                     \
     do {                                            \
-        NXESP_CFG_LOG_OUT("[NXESP]");               \
-        NXESP_CFG_LOG_OUT(FMT, ## __VA_ARGS__);     \
+        printf("[NXESP]");                          \
+        printf(FMT, ## __VA_ARGS__);                \
     } while (0)
 
 /* printf message color */
 #define NXESP_MSG_CLR_NONE     "\033[0m"       /* None */
 #define NXESP_MSG_CLR_RED      "\033[1;31m"    /* Red */
 #define NXESP_MSG_CLR_YELLOW   "\033[1;33m"    /* Yellow */
-#define NXESP_MSG_CLR_GREEN    "\033[1;32m"    /* Green */
-#define NXESP_MSG_CLR_CYAN     "\033[1;36m"    /* Cyan */
-#define NXESP_MSG_CLR_PURPLE   "\033[1;35m"    /* Purple */
 
 #define NXESP_CHK_BOOL(EXPR)                                                        \
     do {                                                                            \
         if (!(EXPR)) {                                                              \
-            NXESP_CFG_LOG_OUT(NXESP_MSG_CLR_YELLOW);                                \
-            NXESP_CFG_LOG_OUT("NXESP CHECK FAILURE: " #EXPR "\r\n");                \
-            NXESP_CFG_LOG_OUT("FILE: %s+%d\r\n", __FILE__, __LINE__);               \
-            NXESP_CFG_LOG_OUT(NXESP_MSG_CLR_NONE);                                  \
+            printf(NXESP_MSG_CLR_YELLOW);                                           \
+            printf("NXESP CHECK FAILURE: " #EXPR "\r\n");                           \
+            printf("FILE: %s+%d\r\n", __FILE__, __LINE__);                          \
+            printf(NXESP_MSG_CLR_NONE);                                             \
             status = NX_NOT_SUCCESSFUL;                                             \
             goto clean_up;                                                          \
         }                                                                           \
     } while (0)
 
-#define NXESP_CHK_STATUS(EXPR)                                          \
-    do {                                                                \
-        status = (EXPR);                                                \
-        if (status != NX_SUCCESS) {                                     \
-            NXESP_CFG_LOG_OUT(NXESP_MSG_CLR_YELLOW);                    \
-            NXESP_CFG_LOG_OUT("NXESP CHECK FAILURE: " #EXPR "\r\n");    \
-            NXESP_CFG_LOG_OUT("Expected 0x%08x, Got 0x%08x\r\n", NX_SUCCESS, status);   \
-            NXESP_CFG_LOG_OUT("FILE: %s+%d\r\n", __FILE__, __LINE__);   \
-            NXESP_CFG_LOG_OUT(NXESP_MSG_CLR_NONE);                      \
-            goto clean_up;                                              \
-        }                                                               \
+#define NXESP_CHK_STATUS(EXPR)                                              \
+    do {                                                                    \
+        status = (EXPR);                                                    \
+        if (status != NX_SUCCESS) {                                         \
+            printf(NXESP_MSG_CLR_YELLOW);                                   \
+            printf("NXESP CHECK FAILURE: " #EXPR "\r\n");                   \
+            printf("Expected 0x%08x, Got 0x%08x\r\n", NX_SUCCESS, status);  \
+            printf("FILE: %s+%d\r\n", __FILE__, __LINE__);                  \
+            printf(NXESP_MSG_CLR_NONE);                                     \
+            goto clean_up;                                                  \
+        }                                                                   \
     } while (0)
 
 static UINT esp8266_wifi_initialize(CHAR *ssid, CHAR *password, ESP_WIFI_Security_t mode);

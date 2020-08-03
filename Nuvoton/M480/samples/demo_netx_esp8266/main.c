@@ -154,11 +154,11 @@ void    thread_0_entry(ULONG thread_input)
 
     /* Get HTTP server IP address through DNS */
     MYAPP_CHK_STATUS(nx_dns_host_by_name_get(&nx_dns_client, (UCHAR *)HTTP_SERVER_NAME, &host_ip_address, timeout_ticks));
-    MYAPP_LOG_OUT(HTTP_SERVER_NAME " IP address: %lu.%lu.%lu.%lu\r\n",
-                  (host_ip_address >> 24) & 0xFF,
-                  (host_ip_address >> 16) & 0xFF,                   
-                  (host_ip_address >> 8) & 0xFF,
-                  host_ip_address & 0xFF);
+    printf(HTTP_SERVER_NAME " IP address: %lu.%lu.%lu.%lu\r\n",
+           (host_ip_address >> 24) & 0xFF,
+           (host_ip_address >> 16) & 0xFF,                   
+           (host_ip_address >> 8) & 0xFF,
+           host_ip_address & 0xFF);
 
     /* Create a socket */
     MYAPP_CHK_STATUS(nx_tcp_socket_create(&nx_ip, &tcp_client_socket, "TCP Client Socket",
@@ -173,13 +173,9 @@ void    thread_0_entry(ULONG thread_input)
     MYAPP_CHK_STATUS(nx_tcp_client_socket_connect(&tcp_client_socket, host_ip_address, HTTP_SERVER_PORT, timeout_ticks));
 
     /* Print HTTP request */
-    MYAPP_LOG_OUT("HTTP request:\r\n");
-    /* Change color for dumped data */
-    MYAPP_CFG_LOG_OUT(MYAPP_MSG_CLR_PURPLE);
+    printf("HTTP request:\r\n");
     /* Print data */
-    MYAPP_CFG_LOG_OUT(http_request);
-    /* Change color back */
-    MYAPP_CFG_LOG_OUT(MYAPP_MSG_CLR_NONE);
+    printf(http_request);
 
     /* Allocate a packet  */
     packet_0 = NULL;
@@ -205,7 +201,7 @@ void    thread_0_entry(ULONG thread_input)
             continue;
         } else if (status == NX_NOT_CONNECTED) {
             MYAPP_CHK_BOOL(!packet_0);
-            MYAPP_LOG_OUT("Closed by remote\r\n");
+            printf("Closed by remote\r\n");
             break;
         } else {
             MYAPP_CHK_BOOL(!packet_0);
@@ -223,13 +219,9 @@ void    thread_0_entry(ULONG thread_input)
             MYAPP_CHK_BOOL(packet_length == bytes_copied);
 
             /* Print HTTP response */
-            MYAPP_LOG_OUT("HTTP response:\r\n");
-            /* Change color for dumped data */
-            MYAPP_CFG_LOG_OUT(MYAPP_MSG_CLR_PURPLE);
+            printf("HTTP response:\r\n");
             /* Print data */
-            MYAPP_CFG_LOG_OUT(http_response);
-            /* Change color back */
-            MYAPP_CFG_LOG_OUT(MYAPP_MSG_CLR_NONE);
+            printf(http_response);
 
             /* Release packet_0 */
             MYAPP_CHK_STATUS(nx_packet_release(packet_0));

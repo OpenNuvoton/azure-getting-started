@@ -48,58 +48,52 @@ void myapp_dump_hex(uint8_t *data, uint32_t size)
     uint16_t rmn = size;
     bool end_newline = false;
 
-    /* Change color for dumped data */
-    MYAPP_CFG_LOG_OUT(MYAPP_MSG_CLR_PURPLE);
-
-    //MYAPP_CFG_LOG_OUT("========Dump %d bytes hex data...========\r\n", size);
+    //printf("========Dump %d bytes hex data...========\r\n", size);
 
     while (rmn >= 16) {
-        MYAPP_CFG_LOG_OUT("%02x %02x %02x %02x %02x %02x %02x %02x "
-                          "%02x %02x %02x %02x %02x %02x %02x %02x " "\r\n",
-                          data_ind[0], data_ind[1], data_ind[2], data_ind[3],
-                          data_ind[4], data_ind[5], data_ind[6], data_ind[7],
-                          data_ind[8], data_ind[9], data_ind[10], data_ind[11],
-                          data_ind[12], data_ind[13], data_ind[14], data_ind[15]);
+        printf("%02x %02x %02x %02x %02x %02x %02x %02x "
+               "%02x %02x %02x %02x %02x %02x %02x %02x " "\r\n",
+               data_ind[0], data_ind[1], data_ind[2], data_ind[3],
+               data_ind[4], data_ind[5], data_ind[6], data_ind[7],
+               data_ind[8], data_ind[9], data_ind[10], data_ind[11],
+               data_ind[12], data_ind[13], data_ind[14], data_ind[15]);
         data_ind += 16;
         rmn -= 16;
     }
 
     if (rmn >= 8) {
-        MYAPP_CFG_LOG_OUT("%02x %02x %02x %02x %02x %02x %02x %02x ", 
-                          data_ind[0], data_ind[1], data_ind[2], data_ind[3],
-                          data_ind[4], data_ind[5], data_ind[6], data_ind[7]);
+        printf("%02x %02x %02x %02x %02x %02x %02x %02x ", 
+               data_ind[0], data_ind[1], data_ind[2], data_ind[3],
+               data_ind[4], data_ind[5], data_ind[6], data_ind[7]);
         data_ind += 8;
         rmn -= 8;
         end_newline = true;
     }
     
     if (rmn >= 4) {
-        MYAPP_CFG_LOG_OUT("%02x %02x %02x %02x ",
-                          data_ind[0], data_ind[1], data_ind[2], data_ind[3]);
+        printf("%02x %02x %02x %02x ",
+               data_ind[0], data_ind[1], data_ind[2], data_ind[3]);
         data_ind += 4;
         rmn -= 4;
         end_newline = true;
     }
     
     if (rmn >= 2) {
-        MYAPP_CFG_LOG_OUT("%02x %02x ", data_ind[0], data_ind[1]);
+        printf("%02x %02x ", data_ind[0], data_ind[1]);
         data_ind += 2;
         rmn -= 2;
         end_newline = true;
     }
 
     if (rmn) {
-        MYAPP_CFG_LOG_OUT("%02x ", *data_ind ++);
+        printf("%02x ", *data_ind ++);
         rmn -= 1;
         end_newline = true;
     }
 
     if (end_newline) {
-        MYAPP_CFG_LOG_OUT("\r\n");
+        printf("\r\n");
     }
 
-    //MYAPP_CFG_LOG_OUT("========Dump %d bytes hex data...END========\r\n", size);
-    
-    /* Change color back */
-    MYAPP_CFG_LOG_OUT(MYAPP_MSG_CLR_NONE);
+    //printf("========Dump %d bytes hex data...END========\r\n", size);
 }
