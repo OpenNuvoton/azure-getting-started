@@ -21,7 +21,7 @@ extern "C" {
 #define ESP_CFG_MULTICONN               1
 #define ESP_CFG_LOG                     1
 #define ESP_CFG_ASSERT                  1
-#define ESP_CFG_LOGLVL_MAX              ESP_LOGLVL_INFO
+#define ESP_CFG_LOGLVL_MAX              ESP_LOGLVL_WARN
 
 /* Hardware reset via reset pin or power pin */
 #ifndef ESP_CFG_HW_RST
