@@ -603,7 +603,41 @@ NX_PACKET *current_packet;
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
+static UINT  nx_wifi_socket_receive_shortwait(VOID *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option, UINT socket_type);
 static UINT  nx_wifi_socket_receive(VOID *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option, UINT socket_type)
+{
+    UINT    nx_status;
+    UINT    start_time, now_time;
+    UINT    shortwait_time = WIFI_READ_TIMEOUT * NX_IP_PERIODIC_RATE / 1000;
+
+    /* Get the start time */
+    start_time = tx_time_get();
+
+    /* Divide long-wait receive into short-wait receives. This is to avoid 
+     * locking ESP8266 modem by one socket and to relinquish to other sockets. */
+    do {
+        /* Short-wait receive */
+        nx_status = nx_wifi_socket_receive_shortwait(socket_ptr, packet_ptr, shortwait_time, socket_type);
+        if (nx_status == NX_SUCCESS) {
+            /* Exit on receiving at least one packet */
+            break;
+        } else if (nx_status == NX_NO_PACKET) {
+            /* Check timeout on receiving no packet yet */
+        } else {
+            /* Exit on error */
+            break;
+        }
+
+        /* Get the current time */
+        now_time = tx_time_get();
+
+        /* FIXME: Take tick wrap-around into consideration */
+    } while ((wait_option == NX_WAIT_FOREVER) || (wait_option >= (now_time - start_time)));
+
+    return nx_status;
+}
+
+static UINT  nx_wifi_socket_receive_shortwait(VOID *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option, UINT socket_type)
 {
 
 TX_INTERRUPT_SAVE_AREA
@@ -699,7 +733,6 @@ UINT    received_packet = NX_FALSE;
             /* ESP8266: Receive the data within a specified time.  */ 
             /* ESP8266: Proactive receive +CIPRECVDATA data */
             if (ESP_WIFI_IsProactRecv(entry_index)) {
-                /* Implement proactive receive for +CIPRECVDATA data */
                 status = ESP_WIFI_Recv2(entry_index, (uint8_t*)nx_wifi_buffer, 
                                        sizeof(nx_wifi_buffer), &size, wait_millisecond);
             }

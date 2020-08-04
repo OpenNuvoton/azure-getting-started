@@ -1335,7 +1335,7 @@ static ESP_WIFI_Status_t ESP_IO_Recv( uint8_t pucRxBuf[], uint16_t usReadBytes, 
                 if ((strstr((char *)pucRxBuf, "\r\nRecv") > 0) && (strstr((char *)pucRxBuf, "bytes\r\n") > 0)) {
                     xTickEnd += ESP_TIMEOUT_RECV_EXTRA;
                 } else {
-                    ESP_LOG_DBG("Read %d bytes...TIMEOUT(%d ms)\r\n", usReadBytes, xTimeout);
+                    ESP_LOG_V("Read %d bytes...TIMEOUT(%d ms)\r\n", usReadBytes, xTimeout);
                     ucExit = 1;
                     break;
                 }
@@ -1642,7 +1642,7 @@ static ESP_WIFI_Status_t ESP_IO_Recv( uint8_t pucRxBuf[], uint16_t usReadBytes, 
         if (usCount > 0) {
             ESP_LOG_DBG("[AT<]%s%s", pucRxBuf, pucRxBuf[usCount - 1] == '\n' ? "" : "\r\n");
         } else {
-            ESP_LOG_DBG("[AT<]None\r\n");
+            ESP_LOG_V("[AT<]None\r\n");
         }
     } else {
         ESP_LOG_DBG("[AT<]...%d chars...\r\n", usCount);
