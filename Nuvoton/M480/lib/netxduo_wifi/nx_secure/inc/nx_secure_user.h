@@ -61,23 +61,23 @@
 /* Override various options with default values already assigned in nx_secure_tls.h */
 
 
+/* NX_SECURE_TLS_ENABLE_SSL_3_0 defines whether or not to enable SSL 3.0 protocol support.
+   BY default SSL 3.0 is not supported. */
+/*
+   #define NX_SECURE_TLS_ENABLE_SSL_3_0
+ */
+
 /* NX_SECURE_TLS_ENABLE_TLS_1_0 defines whether or not to enable TLS 1.0 protocol support.
    BY default TLS 1.0 is not supported. */
 /*
    #define NX_SECURE_TLS_ENABLE_TLS_1_0
  */
 
-/* NX_SECURE_TLS_ENABLE_TLS_1_1 defines whether or not to enable TLS 1.1 protocol support.
-   BY default TLS 1.1 is not supported. */
+/* NX_SECURE_TLS_DISABLE_TLS_1_1 defines whether or not to disable TLS 1.1 protocol support.
+   BY default TLS 1.1 is supported. */
 /*
-   #define NX_SECURE_TLS_ENABLE_TLS_1_1
-*/
-
-/* NX_SECURE_TLS_ENABLE_TLS_1_3 defines whether or not to disable TLS 1.3 protocol support.
-   BY default TLS 1.3 is not enabled. */
-/*
-   #define NX_SECURE_TLS_ENABLE_TLS_1_3
-*/
+   #define NX_SECURE_TLS_DISABLE_TLS_1_1
+ */
 
 /* NX_SECURE_TLS_DISABLE_PROTOCOL_VERSION_DOWNGRADE defines whether or not to disables
    protocol version downgrade for TLS client. BY default protocol version downgrade is supported. */
@@ -289,5 +289,3 @@
 /*
    #define NX_SECURE_X509_USE_EXTENDED_DISTINGUISHED_NAMES
 */
-
-#endif /* SRC_NX_SECURE_USER_H */

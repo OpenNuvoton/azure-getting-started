@@ -93,6 +93,7 @@ UINT       status;
 UINT       old_threshold;
 NX_IP     *created_ip;
 ULONG      created_count;
+UCHAR     *end_stack = 0;
 TX_THREAD *current_thread;
 
 
@@ -103,7 +104,7 @@ TX_THREAD *current_thread;
     {
         return(NX_PTR_ERROR);
     }
-    
+
     /* Pickup current thread pointer.  */
     current_thread =  tx_thread_identify();
 
@@ -121,7 +122,9 @@ TX_THREAD *current_thread;
 
         /* Is the new ip already created?  */
         /*lint -e{946} suppress pointer subtraction, since it is necessary. */
-        if (ip_ptr == created_ip)
+        if ((ip_ptr == created_ip) ||
+            ((memory_ptr >= created_ip -> nx_ip_thread.tx_thread_stack_start) && (memory_ptr < created_ip -> nx_ip_thread.tx_thread_stack_end)) ||
+            ((((VOID *)end_stack)  >= created_ip -> nx_ip_thread.tx_thread_stack_start) && (((VOID *)end_stack)  < created_ip -> nx_ip_thread.tx_thread_stack_end)))
         {
 
             /* Restore preemption.  */

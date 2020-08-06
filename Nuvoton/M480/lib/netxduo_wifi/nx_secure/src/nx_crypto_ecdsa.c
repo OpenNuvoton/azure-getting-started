@@ -458,7 +458,7 @@ UINT                  buffer_size = curve -> nx_crypto_ec_n.nx_crypto_huge_buffe
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Microsoft supported ECDSA cryptographic algorithm.                  */
+/*    Microsoft supported ECDSA cryptograhic algorithm.                   */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

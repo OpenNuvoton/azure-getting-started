@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\M480_BSP_CMSIS\Library\CMSIS\Include;..\..\..\..\M480_BSP_CMSIS\Library\Device\Nuvoton\M480\Include;..\..\..\..\M480_BSP_CMSIS\Library\StdDriver\inc;..\..\..\..\..\..\..\core\lib\threadx\common\inc;..\..\..\..\..\..\..\core\lib\threadx\ports\cortex_m4\keil\inc;..\..\..\common\inc;..\..\..\ports\cortex_m4\keil\inc;..\..\..\addons\dns;..\..\..\addons\mqtt;..\..\..\addons\sntp;..\..\..\nx_secure\inc;..\..\..\nx_secure\ports;..</IncludePath>
+              <IncludePath>..\..\..\..\M480_BSP_CMSIS\Library\CMSIS\Include;..\..\..\..\M480_BSP_CMSIS\Library\Device\Nuvoton\M480\Include;..\..\..\..\M480_BSP_CMSIS\Library\StdDriver\inc;..\..\..\..\..\..\..\core\lib\threadx\common\inc;..\..\..\..\..\..\..\core\lib\threadx\ports\cortex_m4\keil\inc;..\..\..\common\inc;..\..\..\ports\cortex_m4\keil\inc;..\..\..\addons\dns;..\..\..\addons\mqtt;..\..\..\addons\sntp;..\..\..\nx_secure\inc;..\..\..\nx_secure\ports;..\..\..\..\..\..\..\core\lib\azure-iot-preview\nx_cloud</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2361,11 +2361,6 @@
               <FileName>nxd_tcp_client_socket_connect.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\common\src\nxd_tcp_client_socket_connect.c</FilePath>
-            </File>
-            <File>
-              <FileName>nxd_tcp_socket_peer_info_get.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\common\src\nxd_tcp_socket_peer_info_get.c</FilePath>
             </File>
             <File>
               <FileName>nxd_udp_socket_send.c</FileName>

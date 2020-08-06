@@ -564,7 +564,7 @@ UINT   round;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Microsoft supported 3DES cryptographic algorithm.                   */
+/*    Microsoft supported 3DES cryptograhic algorithm.                    */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

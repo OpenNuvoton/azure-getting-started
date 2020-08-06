@@ -48,7 +48,7 @@
 #define NX_SECURE_PORT_H
 
 
-/* Determine if the optional NetX Secure user define file should be used.  */
+/* Determine if the optional NetX Seucre user define file should be used.  */
 
 /*
    #define NX_SECURE_INCLUDE_USER_DEFINE_FILE
@@ -62,14 +62,12 @@
 #include "nx_secure_user.h"
 #endif
 
-#define NX_SECURE_ENABLE_AEAD_CIPHER
-#define NX_SECURE_AEAD_CIPHER_CHECK(a) ((a) == NX_CRYPTO_ENCRYPTION_AES_GCM_16)
 
 /* Define the version ID of NetX Secure.  This may be utilized by the application.  */
 
 #ifdef NX_SECURE_SYSTEM_INIT
 CHAR                            _nx_secure_version_id[] =
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Secure Synergy Version G6.0 *";
+                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Secure Cortex-M4/IAR Version 6.0 *";
 #else
 extern  CHAR                    _nx_secure_version_id[];
 #endif

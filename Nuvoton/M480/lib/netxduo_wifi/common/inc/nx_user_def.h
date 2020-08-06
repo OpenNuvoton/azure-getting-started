@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   User Specific  for STM32L475E-IOT01A1                               */
+/**   User Specific                                                       */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -30,7 +30,7 @@
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*    William E. Lamie, Microsoft Corporation                             */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -44,12 +44,35 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
+
 #ifndef NX_USER_H
 #define NX_USER_H
+
+#define NX_DISABLE_IPV6
+#define NX_DISABLE_INCLUDE_SOURCE_CODE
+#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+
+#define NX_SNTP_CLIENT_CHECK_DISABLE 
+
+#define NX_SECURE_ENABLE
+#define NXD_MQTT_CLOUD_ENABLE
+
+#define NX_PACKET_ALIGNMENT             32
+#define NX_PACKET_HEADER_PAD
+#define NX_PACKET_HEADER_PAD_SIZE       2
+
+#define NX_DISABLE_ICMPV4_RX_CHECKSUM
+#define NX_DISABLE_ICMPV4_TX_CHECKSUM  
+#define NX_DISABLE_IP_RX_CHECKSUM
+#define NX_DISABLE_IP_TX_CHECKSUM
+#define NX_DISABLE_TCP_RX_CHECKSUM
+#define NX_DISABLE_TCP_TX_CHECKSUM
+#define NX_DISABLE_UDP_RX_CHECKSUM
+#define NX_DISABLE_UDP_TX_CHECKSUM
 
 
 /* Define various build options for the NetX Duo port.  The application should either make changes
@@ -62,6 +85,12 @@
 
 
 /* Configuration options for Interface */
+
+/* NUVOTON: Extra configuration options from the location: 
+   azure-iot-preview/samples/sample_azure_iot_embedded_sdk/nx_user.h */
+
+#define NX_DNS_CLIENT_CLEAR_QUEUE
+#define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
 
 /* NX_MAX_PHYSICAL_INTERFACES defines the number physical network interfaces
    present to NetX Duo IP layer.  Physical interface does not include
@@ -315,7 +344,6 @@
 /*
 #define NX_DISABLE_IGMPV2
 */
-
 
 /* Configuration options for ARP */
 
@@ -593,7 +621,6 @@
 */
 
 /* Defined, this option disables checksum logic on received UDP packets.  */
-
 /*
 #define NX_DISABLE_UDP_RX_CHECKSUM
 */
@@ -605,7 +632,6 @@
 /*
 #define NX_DISABLE_UDP_TX_CHECKSUM
 */
-
 
 /* Configuration options for statistics.  */
 

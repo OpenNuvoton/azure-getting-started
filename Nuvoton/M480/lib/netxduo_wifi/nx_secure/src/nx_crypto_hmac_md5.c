@@ -38,7 +38,7 @@
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Microsoft supported HMAC MD5 cryptographic algorithm.               */
+/*    Microsoft supported HMAC MD5 cryptograhic algorithm.                */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

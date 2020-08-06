@@ -908,7 +908,7 @@ VOID *handler = NX_NULL;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Microsoft supported DRBG cryptographic algorithm.                   */
+/*    Microsoft supported DRBG cryptograhic algorithm.                    */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

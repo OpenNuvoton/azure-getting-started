@@ -451,7 +451,7 @@ UINT status;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Microsoft supported PKCS#1v1.5 cryptographic algorithm.             */
+/*    Microsoft supported PKCS#1v1.5 cryptograhic algorithm.              */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

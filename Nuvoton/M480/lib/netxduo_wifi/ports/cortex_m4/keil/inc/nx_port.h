@@ -15,20 +15,42 @@
 /**                                                                       */ 
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Port Specific for NuMaker-IoT-M487                                  */
+/**   Port Specific                                                       */
 /**                                                                       */
 /**************************************************************************/
+/**************************************************************************/
+
+
+/**************************************************************************/ 
+/*                                                                        */ 
+/*  PORT SPECIFIC C INFORMATION                            RELEASE        */ 
+/*                                                                        */ 
+/*    nx_port.h                                         Cortex-M4/GNU     */ 
+/*                                                           6.0          */
+/*                                                                        */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
+/*  DESCRIPTION                                                           */ 
+/*                                                                        */ 
+/*    This file contains data type definitions that make the NetX         */ 
+/*    real-time TCP/IP function identically on a variety of different     */ 
+/*    processor architectures.                                            */ 
+/*                                                                        */ 
+/*  RELEASE HISTORY                                                       */ 
+/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 
 #ifndef NX_PORT_H
 #define NX_PORT_H
 
-
 /* Determine if the optional NetX user define file should be used.  */
 
-/* 
-#define NX_INCLUDE_USER_DEFINE_FILE
-*/
 #ifdef NX_INCLUDE_USER_DEFINE_FILE
 
 
@@ -36,30 +58,29 @@
    alternately be defined on the command line.  */
 
 #include "nx_user.h"
+
+#else
+
+/* Default nx_user.h */
+#include "nx_user_def.h"
+
 #endif
 
-#define NX_DISABLE_IPV6
-
-#define NX_DISABLE_ICMPV4_RX_CHECKSUM
-#define NX_DISABLE_ICMPV4_TX_CHECKSUM  
-#define NX_DISABLE_IP_RX_CHECKSUM
-#define NX_DISABLE_IP_TX_CHECKSUM
-#define NX_DISABLE_TCP_RX_CHECKSUM
-#define NX_DISABLE_TCP_TX_CHECKSUM
-#define NX_DISABLE_UDP_RX_CHECKSUM
-#define NX_DISABLE_UDP_TX_CHECKSUM
-
-#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
-
-#define NX_SECURE_ENABLE
-
-#define NX_SNTP_CLIENT_CHECK_DISABLE
- 
 
 /* Default to little endian, since this is what most ARM targets are.  */
 
 #define NX_LITTLE_ENDIAN    1
 
+
+/* By default IPv6 is enabled. */
+
+#ifndef FEATURE_NX_IPV6
+#define FEATURE_NX_IPV6
+#endif /* FEATURE_NX_IPV6 */
+
+#ifdef NX_DISABLE_IPV6 
+#undef FEATURE_NX_IPV6 
+#endif /* !NX_DISABLE_IPV6 */
 
 #include <stdio.h>
 #include <string.h>
@@ -81,8 +102,6 @@
 #ifdef NX_LITTLE_ENDIAN
 #define NX_CHANGE_ULONG_ENDIAN(arg) arg = __rev(arg)
 #define NX_CHANGE_USHORT_ENDIAN(arg) arg = __rev16(arg)
-
-
 
 
 #ifndef htonl
@@ -177,7 +196,7 @@
 
 #ifdef NX_SYSTEM_INIT
 CHAR                            _nx_version_id[] = 
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Duo Cortex-M4/ARM Version 6.0 *";
+                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Duo Cortex-M4/GNU Version 6.0 *";
 #else
 extern  CHAR                    _nx_version_id[];
 #endif

@@ -359,10 +359,6 @@ extern   "C" {
 #define NX_SECURE_TLS_TLS_1_2_ENABLED                   (1)
 #endif
 
-#ifdef NX_SECURE_TLS_ENABLE_TLS_1_3
-#define NX_SECURE_TLS_TLS_1_3_ENABLED                   (1)
-#endif 
-
 #ifndef NX_SECURE_TLS_TLS_1_3_ENABLED
 #define NX_SECURE_TLS_TLS_1_3_ENABLED                   (0)
 #endif
@@ -1266,7 +1262,7 @@ typedef struct NX_SECURE_TLS_SESSION_STRUCT
 #define NX_SECURE_TLS_FINISHED             20
 #define NX_SECURE_TLS_CERTIFICATE_URL      21
 #define NX_SECURE_TLS_CERTIFICATE_STATUS   22
-#define NX_SECURE_TLS_KEY_UPDATE           24
+#define NX_SECURE_TLS_KEY_UPDATE           25
 #define NX_SECURE_TLS_INVALID_MESSAGE      100
 #define NX_SECURE_TLS_MESSAGE_HASH         254
 

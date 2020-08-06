@@ -38,7 +38,7 @@
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Microsoft supported HMAC SHA512 cryptographic algorithm.            */
+/*    Microsoft supported HMAC SHA512 cryptograhic algorithm.             */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

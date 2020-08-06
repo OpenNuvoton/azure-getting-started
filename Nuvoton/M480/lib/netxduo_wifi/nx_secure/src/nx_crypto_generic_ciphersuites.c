@@ -75,6 +75,7 @@ extern NX_CRYPTO_METHOD crypto_method_aes_ccm_16;
 extern NX_CRYPTO_METHOD crypto_method_aes_128_gcm_16;
 extern NX_CRYPTO_METHOD crypto_method_aes_256_gcm_16;
 extern NX_CRYPTO_METHOD crypto_method_ecdsa;
+extern NX_CRYPTO_METHOD crypto_method_ecdh;
 extern NX_CRYPTO_METHOD crypto_method_ecdhe;
 extern NX_CRYPTO_METHOD crypto_method_hmac_sha1;
 extern NX_CRYPTO_METHOD crypto_method_hmac_sha256;
@@ -105,18 +106,25 @@ extern NX_CRYPTO_METHOD crypto_method_hmac;
 NX_SECURE_TLS_CIPHERSUITE_INFO _nx_crypto_ciphersuite_lookup_table[] =
 {
     /* Ciphersuite,                           public cipher,            public_auth,              session cipher & cipher mode,   iv size, key size,  hash method,                    hash size, TLS PRF */
+    {TLS_RSA_WITH_AES_256_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_AES_256_CBC_SHA,            &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_AES_128_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_AES_128_CBC_SHA,            &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
 #ifdef NX_SECURE_ENABLE_AEAD_CIPHER
     {TLS_RSA_WITH_AES_128_GCM_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_128_gcm_16,  16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
 #endif /* NX_SECURE_ENABLE_AEAD_CIPHER */
-    {TLS_RSA_WITH_AES_256_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
-    {TLS_RSA_WITH_AES_128_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
 
 #ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
+    {TLS_PSK_WITH_AES_128_CBC_SHA,            &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_PSK_WITH_AES_256_CBC_SHA,            &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
     {TLS_PSK_WITH_AES_128_CBC_SHA256,         &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
 #ifdef NX_SECURE_ENABLE_AEAD_CIPHER
     {TLS_PSK_WITH_AES_128_CCM_8,              &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_ccm_8,       16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
 #endif
 #endif /* NX_SECURE_ENABLE_PSK_CIPHERSUITES */
+
+    {TLS_RSA_WITH_NULL_SHA,                   &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_null,            0,       0,         &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_NULL_MD5,                   &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_null,            0,       0,         &crypto_method_hmac_md5,        16,        &crypto_method_tls_prf_sha256},
 };
 
 const UINT _nx_crypto_ciphersuite_lookup_table_size = sizeof(_nx_crypto_ciphersuite_lookup_table) / sizeof(NX_SECURE_TLS_CIPHERSUITE_INFO);
@@ -193,7 +201,8 @@ NX_SECURE_TLS_CIPHERSUITE_INFO _nx_crypto_ciphersuite_lookup_table_tls_1_3[] =
 {
 #ifdef NX_SECURE_ENABLE_AEAD_CIPHER
     {TLS_AES_128_GCM_SHA256,                  &crypto_method_ecdhe,      &crypto_method_ecdsa,     &crypto_method_aes_128_gcm_16,  96,      16,        &crypto_method_sha256,         32,         &crypto_method_hkdf},
-    /* SHA-384 ciphersuites not yet supported... {TLS_AES_256_GCM_SHA384,                  &crypto_method_ecdhe,      &crypto_method_rsa,     &crypto_method_aes_256_gcm_16,  16,      16,        &crypto_method_sha384,         48,         &crypto_method_hkdf},*/
+    //{TLS_AES_256_GCM_SHA384,                  &crypto_method_ecdhe,      &crypto_method_rsa,     &crypto_method_aes_256_gcm_16,  16,      16,        &crypto_method_sha384,         48,         &crypto_method_hkdf},
+
     {TLS_AES_128_CCM_SHA256,                  &crypto_method_ecdhe,      &crypto_method_ecdsa,     &crypto_method_aes_ccm_16,       96,      16,        &crypto_method_sha256,         32,         &crypto_method_hkdf},
     {TLS_AES_128_CCM_8_SHA256,                &crypto_method_ecdhe,      &crypto_method_ecdsa,     &crypto_method_aes_ccm_8,       96,      16,        &crypto_method_sha256,         32,         &crypto_method_hkdf},
 #endif
@@ -204,7 +213,6 @@ const UINT _nx_crypto_ciphersuite_lookup_table_tls_1_3_size = sizeof(_nx_crypto_
 
 /* Ciphersuite table with ECC. */
 /* Lookup table used to map ciphersuites to cryptographic routines. */
-/* Ciphersuites are negotiated IN ORDER - top priority first. Ciphersuites lower in the list are considered less secure. */
 NX_SECURE_TLS_CIPHERSUITE_INFO _nx_crypto_ciphersuite_lookup_table_ecc[] =
 {
     /* Ciphersuite,                           public cipher,            public_auth,              session cipher & cipher mode,   iv size, key size,  hash method,                    hash size, TLS PRF */
@@ -213,30 +221,48 @@ NX_SECURE_TLS_CIPHERSUITE_INFO _nx_crypto_ciphersuite_lookup_table_ecc[] =
     {TLS_AES_128_CCM_SHA256,                  &crypto_method_ecdhe,     &crypto_method_ecdsa,     &crypto_method_aes_ccm_16,      96,      16,        &crypto_method_sha256,         32,         &crypto_method_hkdf},
     {TLS_AES_128_CCM_8_SHA256,                &crypto_method_ecdhe,     &crypto_method_ecdsa,     &crypto_method_aes_ccm_8,       96,      16,        &crypto_method_sha256,         32,         &crypto_method_hkdf},
 #endif
-
+    
+    {TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, &crypto_method_ecdhe,     &crypto_method_ecdsa,     &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,    &crypto_method_ecdhe,     &crypto_method_ecdsa,     &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,    &crypto_method_ecdhe,     &crypto_method_ecdsa,     &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,   &crypto_method_ecdhe,     &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,      &crypto_method_ecdhe,     &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,      &crypto_method_ecdhe,     &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
 #ifdef NX_SECURE_ENABLE_AEAD_CIPHER
     {TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, &crypto_method_ecdhe,     &crypto_method_ecdsa,     &crypto_method_aes_128_gcm_16,  16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
     {TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,   &crypto_method_ecdhe,     &crypto_method_rsa,       &crypto_method_aes_128_gcm_16,  16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
 #endif /* NX_SECURE_ENABLE_AEAD_CIPHER */
 
-    {TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, &crypto_method_ecdhe,     &crypto_method_ecdsa,     &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
-    {TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,   &crypto_method_ecdhe,     &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
-
+    {TLS_RSA_WITH_AES_256_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_AES_256_CBC_SHA,            &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_AES_128_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_AES_128_CBC_SHA,            &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
 #ifdef NX_SECURE_ENABLE_AEAD_CIPHER
     {TLS_RSA_WITH_AES_128_GCM_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_128_gcm_16,  16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
 #endif /* NX_SECURE_ENABLE_AEAD_CIPHER */
-
-    {TLS_RSA_WITH_AES_256_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
-    {TLS_RSA_WITH_AES_128_CBC_SHA256,         &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
-
+    
 #ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
+    {TLS_PSK_WITH_AES_128_CBC_SHA,            &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_PSK_WITH_AES_256_CBC_SHA,            &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
     {TLS_PSK_WITH_AES_128_CBC_SHA256,         &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
 #ifdef NX_SECURE_ENABLE_AEAD_CIPHER
     {TLS_PSK_WITH_AES_128_CCM_8,              &crypto_method_null,      &crypto_method_auth_psk,  &crypto_method_aes_ccm_8,       16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
 #endif
 #endif /* NX_SECURE_ENABLE_PSK_CIPHERSUITES */
 
+    {TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256,  &crypto_method_ecdh,      &crypto_method_ecdsa,     &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,     &crypto_method_ecdh,      &crypto_method_ecdsa,     &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,     &crypto_method_ecdh,      &crypto_method_ecdsa,     &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,    &crypto_method_ecdh,      &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha256,     32,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,       &crypto_method_ecdh,      &crypto_method_rsa,       &crypto_method_aes_cbc_128,     16,      16,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,       &crypto_method_ecdh,      &crypto_method_rsa,       &crypto_method_aes_cbc_256,     16,      32,        &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+#ifdef NX_SECURE_ENABLE_AEAD_CIPHER
+    {TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,  &crypto_method_ecdh,      &crypto_method_ecdsa,     &crypto_method_aes_128_gcm_16,  16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
+    {TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,    &crypto_method_ecdh,      &crypto_method_rsa,       &crypto_method_aes_128_gcm_16,  16,      16,        &crypto_method_null,            0,         &crypto_method_tls_prf_sha256},
+#endif /* NX_SECURE_ENABLE_AEAD_CIPHER */
 
+    {TLS_RSA_WITH_NULL_SHA,                   &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_null,            0,       0,         &crypto_method_hmac_sha1,       20,        &crypto_method_tls_prf_sha256},
+    {TLS_RSA_WITH_NULL_MD5,                   &crypto_method_rsa,       &crypto_method_rsa,       &crypto_method_null,            0,       0,         &crypto_method_hmac_md5,        16,        &crypto_method_tls_prf_sha256},
 };
 
 const UINT _nx_crypto_ciphersuite_lookup_table_ecc_size = sizeof(_nx_crypto_ciphersuite_lookup_table_ecc) / sizeof(NX_SECURE_TLS_CIPHERSUITE_INFO);
@@ -295,8 +321,7 @@ const UINT nx_crypto_ecc_supported_groups_size = sizeof(nx_crypto_ecc_supported_
 
 
 
-#if 0  /* This ciphersuite is provided for reference only. It can be used to construct legacy ciphersuites
-          for use with TLS 1.0 or TLS 1.1 (SHA-1 based ciphersuites are not currently supported in TLS 1.2). */
+
 const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_rsa_with_aes_128_cbc_sha =
 /* TLS ciphersuite entry. */
 {   TLS_RSA_WITH_AES_128_CBC_SHA,       /* Ciphersuite ID. */
@@ -315,7 +340,7 @@ const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_rsa_with_aes_128_cbc_sha =
     /* TLS/DTLS Versions supported. */
     (NX_SECURE_TLS_BITFIELD_VERSIONS_PRE_1_3 | NX_SECURE_DTLS_BITFIELD_VERSIONS_PRE_1_3)
 };
-#endif
+
 
 const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_rsa_with_aes_128_cbc_sha256 =
 /* TLS ciphersuite entry. */
@@ -336,6 +361,62 @@ const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_rsa_with_aes_128_cbc_sha256 =
     (NX_SECURE_TLS_BITFIELD_VERSIONS_PRE_1_3 | NX_SECURE_DTLS_BITFIELD_VERSIONS_PRE_1_3)
 };
 
+const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_rsa_with_aes_256_cbc_sha =
+/* TLS ciphersuite entry. */
+{   TLS_RSA_WITH_AES_256_CBC_SHA,       /* Ciphersuite ID. */
+    NX_SECURE_APPLICATION_TLS,          /* Internal application label. */
+    32,                                 /* Symmetric key size. */
+    {   /* Cipher role array. */
+        {NX_CRYPTO_KEY_EXCHANGE_RSA,             NX_CRYPTO_ROLE_KEY_EXCHANGE},
+        {NX_CRYPTO_DIGITAL_SIGNATURE_RSA,        NX_CRYPTO_ROLE_SIGNATURE_CRYPTO},
+        {NX_CRYPTO_ENCRYPTION_AES_CBC,           NX_CRYPTO_ROLE_SYMMETRIC},
+        {NX_CRYPTO_AUTHENTICATION_HMAC_SHA1_160, NX_CRYPTO_ROLE_MAC_HASH},
+        {NX_CRYPTO_HASH_SHA1,                    NX_CRYPTO_ROLE_RAW_HASH},
+        {NX_CRYPTO_HASH_HMAC,                    NX_CRYPTO_ROLE_HMAC},
+        {NX_CRYPTO_PRF_HMAC_SHA2_256,            NX_CRYPTO_ROLE_PRF},
+        {NX_CRYPTO_NONE,                         NX_CRYPTO_ROLE_NONE}
+    },
+    /* TLS/DTLS Versions supported. */
+    (NX_SECURE_TLS_BITFIELD_VERSIONS_PRE_1_3 | NX_SECURE_DTLS_BITFIELD_VERSIONS_PRE_1_3)
+};
+
+const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_ecdhe_rsa_with_aes_128_cbc_sha =
+/* TLS ciphersuite entry. */
+{   TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, /* Ciphersuite ID. */
+    NX_SECURE_APPLICATION_TLS,          /* Internal application label. */
+    16,                                 /* Symmetric key size. */
+    {   /* Cipher role array. */
+        {NX_CRYPTO_KEY_EXCHANGE_ECDHE,           NX_CRYPTO_ROLE_KEY_EXCHANGE},
+        {NX_CRYPTO_KEY_EXCHANGE_RSA,             NX_CRYPTO_ROLE_SIGNATURE_CRYPTO},
+        {NX_CRYPTO_ENCRYPTION_AES_CBC,           NX_CRYPTO_ROLE_SYMMETRIC},
+        {NX_CRYPTO_AUTHENTICATION_HMAC_SHA1_160, NX_CRYPTO_ROLE_MAC_HASH},
+        {NX_CRYPTO_HASH_SHA1,                    NX_CRYPTO_ROLE_RAW_HASH},
+        {NX_CRYPTO_HASH_HMAC,                    NX_CRYPTO_ROLE_HMAC},
+        {NX_CRYPTO_PRF_HMAC_SHA2_256,            NX_CRYPTO_ROLE_PRF},
+        {NX_CRYPTO_NONE,                         NX_CRYPTO_ROLE_NONE}
+    },
+    /* TLS/DTLS Versions supported. */
+    (NX_SECURE_TLS_BITFIELD_VERSIONS_PRE_1_3 | NX_SECURE_DTLS_BITFIELD_VERSIONS_PRE_1_3)
+};
+
+const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_ecdhe_ecdsa_with_aes_128_cbc_sha =
+/* TLS ciphersuite entry. */
+{   TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, /* Ciphersuite ID. */
+    NX_SECURE_APPLICATION_TLS,            /* Internal application label. */
+    16,                                   /* Symmetric key size. */
+    {   /* Cipher role array. */
+        {NX_CRYPTO_KEY_EXCHANGE_ECDHE,           NX_CRYPTO_ROLE_KEY_EXCHANGE},
+        {NX_CRYPTO_DIGITAL_SIGNATURE_ECDSA,      NX_CRYPTO_ROLE_SIGNATURE_CRYPTO},
+        {NX_CRYPTO_ENCRYPTION_AES_CBC,           NX_CRYPTO_ROLE_SYMMETRIC},
+        {NX_CRYPTO_AUTHENTICATION_HMAC_SHA1_160, NX_CRYPTO_ROLE_MAC_HASH},
+        {NX_CRYPTO_HASH_SHA1,                    NX_CRYPTO_ROLE_RAW_HASH},
+        {NX_CRYPTO_HASH_HMAC,                    NX_CRYPTO_ROLE_HMAC},
+        {NX_CRYPTO_PRF_HMAC_SHA2_256,            NX_CRYPTO_ROLE_PRF},
+        {NX_CRYPTO_NONE,                         NX_CRYPTO_ROLE_NONE}
+    },
+    /* TLS/DTLS Versions supported. */
+    (NX_SECURE_TLS_BITFIELD_VERSIONS_PRE_1_3 | NX_SECURE_DTLS_BITFIELD_VERSIONS_PRE_1_3)
+};
 
 const NX_CRYPTO_CIPHERSUITE nx_crypto_tls_ecdhe_rsa_with_aes_128_gcm_sha256 =
 /* TLS ciphersuite entry. */
@@ -554,6 +635,7 @@ const NX_CRYPTO_METHOD *supported_crypto[] =
     &crypto_method_none,
     &crypto_method_rsa,
     &crypto_method_pkcs1,
+    &crypto_method_ecdh,     
     &crypto_method_ecdhe,     
     &crypto_method_ecdsa,
     &crypto_method_aes_ccm_8,     
@@ -586,7 +668,11 @@ const NX_CRYPTO_CIPHERSUITE *ciphersuite_map[] =
 #endif
     &nx_crypto_tls_ecdhe_rsa_with_aes_128_gcm_sha256,
     &nx_crypto_tls_ecdhe_ecdsa_with_aes_128_gcm_sha256,
+    &nx_crypto_tls_ecdhe_rsa_with_aes_128_cbc_sha,
+    &nx_crypto_tls_ecdhe_ecdsa_with_aes_128_cbc_sha,
+    &nx_crypto_tls_rsa_with_aes_128_cbc_sha,
     &nx_crypto_tls_rsa_with_aes_128_cbc_sha256,
+    &nx_crypto_tls_rsa_with_aes_256_cbc_sha,
 
     /* X.509 ciphersuites. */
     &nx_crypto_x509_ecdsa_sha_256,
