@@ -17,7 +17,7 @@
 #include "nx_api.h"
 
 /* User includes */
-#include "myapp_config.h"
+#include "network_config.h"
 #include "myapp_utils.h"
 
 #define PLL_CLOCK           192000000
