@@ -1,7 +1,7 @@
 /*************************************************************************//**
  * @file     main.c
  * @version  V1.00
- * @brief    Demo Azure RTOS ThreadX for M480 MCU.
+ * @brief    Demo Azure RTOS NetX and ESP8266 WiFi module for M480 MCU.
  *
  * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
@@ -63,22 +63,12 @@ void SYS_Init(void)
     SYS_LockReg();
 }
 
-/* Port of Azure RTOS ThreadX demo code onto Nuvoton platform
- *
- * https://github.com/azure-rtos/threadx/blob/master/samples/demo_threadx.c
- *
- * 1. Enable stdio output console
- * 2. Add/refine sleep cycles and output messages in threads
- */
 int main()
 {
     SYS_Init();
 
     /* Init UART to 115200-8n1 for print message */
     UART_Open(UART0, 115200);
-
-    /* Connect UART to PC, and open a terminal tool to receive following message */
-    printf("Demo Azure RTOS ThreadX...\n");
 
     /* Enter the ThreadX kernel.  */
     tx_kernel_enter();
