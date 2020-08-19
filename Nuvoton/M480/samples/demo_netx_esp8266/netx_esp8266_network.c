@@ -62,8 +62,9 @@
 static UINT esp8266_wifi_initialize(CHAR *ssid, CHAR *password, ESP_WIFI_Security_t mode);
 static UINT dns_client_create(void);
 
+/* Fine-tune packet pool to match real application */
 #define THREADX_PACKET_COUNT 20
-#define THREADX_PACKET_SIZE  ESP_CFG_PAYLOAD_MAXSIZE    /* Set to ESP8266 max payload size */
+#define THREADX_PACKET_SIZE  1200
 #define THREADX_POOL_SIZE    ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
 
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
