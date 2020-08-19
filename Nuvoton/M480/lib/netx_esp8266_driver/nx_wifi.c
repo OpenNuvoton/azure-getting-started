@@ -62,11 +62,19 @@ static NX_IP                        *nx_wifi_ip;
 
 /* ESP8266: Reserve some packets for applications, such as HTTP, etc.
  * 
- * Enlarge to avoid missing ESP active receive packets.
+ * Enlarge to avoid missing ESP proactive receive packets.
  */
 #ifndef NX_WIFI_PACKET_RESERVED
-#define NX_WIFI_PACKET_RESERVED     5
+#define NX_WIFI_PACKET_RESERVED     1
 #endif /* NX_WIFI_PACKET_RESERVED  */
+
+/* ESP8266: Intermediate receive buffer
+ *
+ * Disabling this buffer, we can spare ESP_CFG_IPDBUF_SIZE bytes. But we need to control
+ * NX_PACKET struct directly.
+ * 
+ */
+#define NX_WIFI_IM_RECV_BUFFER      0
 
 /* Define the WIFI socket structure.  */
 typedef struct NX_WIFI_SOCKET_STRUCT
@@ -109,8 +117,10 @@ static NX_WIFI_SOCKET               nx_wifi_socket[NX_WIFI_SOCKET_COUNTER];
 /* Define the SOCKET ID.  */
 static CHAR                         nx_wifi_socket_counter;
 
+#if NX_WIFI_IM_RECV_BUFFER
 /* ESP8266: Define the buffer to receive data from wifi.  */
 static CHAR                         nx_wifi_buffer[ESP_CFG_IPDBUF_SIZE];
+#endif
 
 /* Define the wifi thread.  */
 static void    nx_wifi_thread_entry(ULONG thread_input);
@@ -733,8 +743,30 @@ UINT    received_packet = NX_FALSE;
             /* ESP8266: Receive the data within a specified time.  */ 
             /* ESP8266: Proactive receive +CIPRECVDATA data */
             if (ESP_WIFI_IsProactRecv(entry_index)) {
+#if NX_WIFI_IM_RECV_BUFFER
                 status = ESP_WIFI_Recv2(entry_index, (uint8_t*)nx_wifi_buffer, 
                                        sizeof(nx_wifi_buffer), &size, wait_millisecond);
+#else
+                /* Allocate one packet to store the data. */
+                if (nx_packet_allocate(nx_wifi_pool, packet_ptr,  NX_RECEIVE_PACKET, NX_NO_WAIT))
+                {
+                    ESP_LOG_CRIT("Cannot receive due to failed nx_packet_allocate(...)\r\n");
+            
+                    status = ESP_WIFI_STATUS_ERROR;
+                    break;
+                }
+
+                /* Just use single NX_PACKET struct (no packet chain). */
+                status = ESP_WIFI_Recv2(entry_index, (uint8_t*) (*packet_ptr)->nx_packet_append_ptr, 
+                                       (*packet_ptr)->nx_packet_data_end - (*packet_ptr)->nx_packet_append_ptr, &size, wait_millisecond);
+                if (status == ESP_WIFI_STATUS_OK && size) {
+                    (*packet_ptr)->nx_packet_append_ptr += size;
+                    (*packet_ptr)->nx_packet_length += size;
+                } else {
+                    /* Release the packet.  */
+                    nx_packet_release(*packet_ptr);
+                }
+#endif    
             }
 
             /* ESP8266: Check status.  */
@@ -753,7 +785,7 @@ UINT    received_packet = NX_FALSE;
                     total_millisecond = 0;
                 else
                     total_millisecond -=millisecond;
-                
+
                 continue;
             }
             else
@@ -772,7 +804,8 @@ UINT    received_packet = NX_FALSE;
             /* ESP8266: Propagate link close error code */
             return (status == ESP_WIFI_STATUS_LINKCLOSED) ? (NX_NOT_CONNECTED) : (NX_NO_PACKET);
         }
-        
+
+#if NX_WIFI_IM_RECV_BUFFER
         /* Allocate one packet to store the data.  */
         if (nx_packet_allocate(nx_wifi_pool, packet_ptr,  NX_RECEIVE_PACKET, NX_NO_WAIT))
         {
@@ -783,7 +816,7 @@ UINT    received_packet = NX_FALSE;
             tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
             return(NX_NOT_SUCCESSFUL);
         }
-                      
+
         /* Set the data.  */
         if (nx_packet_data_append(*packet_ptr, nx_wifi_buffer, size, nx_wifi_pool, NX_NO_WAIT))
         {          
@@ -797,7 +830,8 @@ UINT    received_packet = NX_FALSE;
             tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
             return(NX_NOT_SUCCESSFUL);
         }
-        
+#endif
+
         /* Release the IP internal mutex before processing the IP event.  */
         tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
         return(NX_SUCCESS);
