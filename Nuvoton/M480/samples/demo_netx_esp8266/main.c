@@ -117,12 +117,17 @@ clean_up:
 #define HTTP_SERVER_PORT    80
 ULONG host_ip_address;
 
+/* User intermediate buffer for HTTP response */
+#define USE_HTTP_RESP_IM_BUFFER 0
+
 ULONG timeout_ticks = 1000;
 const char http_request[] =     "GET /method HTTP/1.1\r\n"
                                 "Host: ifconfig.io\r\n"
                                 "Connection: close\r\n"
                                 "\r\n";
+#if USE_HTTP_RESP_IM_BUFFER
 char http_response[1024];
+#endif
 
 NX_TCP_SOCKET           tcp_client_socket;
 bool                    tcp_client_socket_created = false;
@@ -200,6 +205,7 @@ void    thread_0_entry(ULONG thread_input)
         }
 
         if (packet_0) {
+#if USE_HTTP_RESP_IM_BUFFER
             ULONG packet_length, bytes_copied;
 
             /* Retrieve data from packet */
@@ -212,6 +218,29 @@ void    thread_0_entry(ULONG thread_input)
             printf("HTTP response:\r\n");
             /* Print data */
             printf(http_response);
+#else
+            NX_PACKET *current_packet = packet_0;
+
+            /* Print HTTP response */
+            printf("HTTP response:\r\n");
+
+            while (current_packet) {
+                char *data = (char *) current_packet->nx_packet_prepend_ptr;
+                uint32_t size = (uint32_t) (current_packet->nx_packet_append_ptr - current_packet->nx_packet_prepend_ptr);
+
+                MYAPP_CHK_BOOL(data);
+
+                printf("%.*s", size, data);
+     
+#ifndef NX_DISABLE_PACKET_CHAIN
+                /* We have crossed the packet boundary. Move to the next packet structure. */
+                current_packet =  current_packet->nx_packet_next;
+#else
+                /* End the loop */
+                current_packet = NX_NULL;
+#endif /* NX_DISABLE_PACKET_CHAIN */
+            }
+#endif
 
             /* Release packet_0 */
             MYAPP_CHK_STATUS(nx_packet_release(packet_0));
