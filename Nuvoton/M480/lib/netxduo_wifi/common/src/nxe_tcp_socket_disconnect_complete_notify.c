@@ -38,7 +38,7 @@ NX_CALLER_CHECKING_EXTERNS
 /*                                                                        */
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
-/*    _nxe_tcp_socket_establishe_notify                   PORTABLE C      */
+/*    _nxe_tcp_socket_disconnect_complete_notify          PORTABLE C      */
 /*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -46,15 +46,14 @@ NX_CALLER_CHECKING_EXTERNS
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
-/*    This function checks for errors in the TCP socket establish notify  */
-/*    function call.                                                      */
+/*    This function checks for errors in the TCP socket disconnect        */
+/*    complete notify function call.                                      */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */
 /*    socket_ptr                            Pointer to TCP socket         */
-/*    tcp_establish_notify                  Routine to call when the      */
-/*                                            connection handshake is     */
-/*                                            completed                   */
+/*    tcp_disconnect_complete_notify        Routine to call when the      */
+/*                                            disconnect is completed     */
 /*                                                                        */
 /*  OUTPUT                                                                */
 /*                                                                        */
@@ -62,8 +61,9 @@ NX_CALLER_CHECKING_EXTERNS
 /*                                                                        */
 /*  CALLS                                                                 */
 /*                                                                        */
-/*    _nx_tcp_socket_establish_notify       Actual socket establish notify*/
-/*                                            function                    */
+/*    _nx_tcp_socket_disconnect_complete_notify                           */
+/*                                          Actual socket disconnect      */
+/*                                            complete notify function    */
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
@@ -76,20 +76,20 @@ NX_CALLER_CHECKING_EXTERNS
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-UINT  _nxe_tcp_socket_establish_notify(NX_TCP_SOCKET *socket_ptr, VOID (*tcp_establish_notify)(NX_TCP_SOCKET *socket_ptr))
+UINT  _nxe_tcp_socket_disconnect_complete_notify(NX_TCP_SOCKET *socket_ptr, VOID (*tcp_disconnect_complete_notify)(NX_TCP_SOCKET *socket_ptr))
 {
 #ifndef NX_DISABLE_EXTENDED_NOTIFY_SUPPORT
+
 UINT status;
 
     /* Check for invalid input pointers.  */
-    if ((socket_ptr == NX_NULL) || (socket_ptr -> nx_tcp_socket_id != NX_TCP_ID) || (tcp_establish_notify == NX_NULL))
+    if ((socket_ptr == NX_NULL) || (socket_ptr -> nx_tcp_socket_id != NX_TCP_ID) || (tcp_disconnect_complete_notify == NX_NULL))
     {
         return(NX_PTR_ERROR);
     }
 
-
     /* Remove for wifi version */
-#if 0
+#if 0    
     /* Check to see if TCP is enabled.  */
     if (!(socket_ptr -> nx_tcp_socket_ip_ptr) -> nx_ip_tcp_packet_receive)
     {
@@ -100,15 +100,15 @@ UINT status;
     /* Check for appropriate caller.  */
     NX_INIT_AND_THREADS_CALLER_CHECKING
 
-    /* Call actual socket establish notify function.  */
-    status =  _nx_tcp_socket_establish_notify(socket_ptr, tcp_establish_notify);
+    /* Call actual socket disconnect complete notify function.  */
+    status =  _nx_tcp_socket_disconnect_complete_notify(socket_ptr, tcp_disconnect_complete_notify);
 
     /* Return to caller.  */
     return(status);
 
 #else /* !NX_DISABLE_EXTENDED_NOTIFY_SUPPORT */
     NX_PARAMETER_NOT_USED(socket_ptr);
-    NX_PARAMETER_NOT_USED(tcp_establish_notify);
+    NX_PARAMETER_NOT_USED(tcp_disconnect_complete_notify);
 
     return(NX_NOT_SUPPORTED);
 

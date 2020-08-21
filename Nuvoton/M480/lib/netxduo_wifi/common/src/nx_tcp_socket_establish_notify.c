@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Transmission Control Protocol (TCP) for STM32L475E-IOT01A1          */
+/**   Transmission Control Protocol (TCP)                                 */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -74,7 +74,29 @@
 /**************************************************************************/
 UINT  _nx_tcp_socket_establish_notify(NX_TCP_SOCKET *socket_ptr, VOID (*tcp_establish_notify)(NX_TCP_SOCKET *socket_ptr))
 {
+#ifndef NX_DISABLE_EXTENDED_NOTIFY_SUPPORT
+
+TX_INTERRUPT_SAVE_AREA
+
+
+    /* Disable interrupts.  */
+    TX_DISABLE
+
+    /* Setup the establish notify function pointer.  */
+    socket_ptr -> nx_tcp_establish_notify =  tcp_establish_notify;
+
+    /* Restore interrupts.  */
+    TX_RESTORE
+
+    /* Return successful completion.  */
+    return(NX_SUCCESS);
+
+#else /* !NX_DISABLE_EXTENDED_NOTIFY_SUPPORT */
+    NX_PARAMETER_NOT_USED(socket_ptr);
+    NX_PARAMETER_NOT_USED(tcp_establish_notify);
 
     return(NX_NOT_SUPPORTED);
+
+#endif /* NX_DISABLE_EXTENDED_NOTIFY_SUPPORT */
 }
 
