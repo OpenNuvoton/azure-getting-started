@@ -108,6 +108,14 @@ typedef struct {
     /* Connections reflecting ESP modem's sockets */
     ESP_WIFI_Conn_t Conns[ESP_CFG_SOCKET_COUNT];
 
+    /* Link close callback */
+    struct {
+        struct {
+            ESP_WIFI_CloseCallback_t    Callback;
+            void *                      Ctx;
+        } CloseCb;
+    } Close;
+
     /* Proactive receive */
     struct {
         uint8_t *           Data;       // Pointer to data buffer
@@ -238,11 +246,19 @@ ESP_WIFI_Status_t ESP_WIFI_Init( void )
     return xRet;
 }
 
+ESP_WIFI_Status_t ESP_WIFI_InstallCloseCallback( ESP_WIFI_CloseCallback_t Callback, void *Ctx )
+{
+    esp_wifi_inst.Close.CloseCb.Callback = Callback;
+    esp_wifi_inst.Close.CloseCb.Ctx = Ctx;
+
+    return ESP_WIFI_STATUS_OK;
+}
+
 ESP_WIFI_Status_t ESP_WIFI_InstallDataRecvCallback( ESP_WIFI_DataRecvCallback_t Callback, void *Ctx )
 {
     esp_wifi_inst.ReactRecv.DataRecvCb.Callback = Callback;
     esp_wifi_inst.ReactRecv.DataRecvCb.Ctx = Ctx;
-    
+
     return ESP_WIFI_STATUS_OK;
 }
 
@@ -1394,6 +1410,11 @@ static ESP_WIFI_Status_t ESP_IO_Recv( uint8_t pucRxBuf[], uint16_t usReadBytes, 
                     esp_wifi_inst.Conns[ClosedLinkID].IsConnected = false;
                 } else {
                     ESP_LOG_CRIT("Invalid \"%d,CLOSED\". Should be 0-%d\r\n", ClosedLinkID, ESP_CFG_SOCKET_COUNT - 1);
+                }
+
+                /* Inform that the link has closed */
+                if (esp_wifi_inst.Close.CloseCb.Callback) {
+                    esp_wifi_inst.Close.CloseCb.Callback(esp_wifi_inst.Close.CloseCb.Ctx, ClosedLinkID);
                 }
 
                 if (ulOobBitmap && (*ulOobBitmap & AT_OOB_BM_LINKCLOSED)) {

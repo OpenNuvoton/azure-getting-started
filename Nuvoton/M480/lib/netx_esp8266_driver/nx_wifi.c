@@ -92,11 +92,12 @@ typedef struct NX_WIFI_SOCKET_STRUCT
     /* Define the connected flag.  */
     CHAR        nx_wifi_socket_connected;
 
-    /* ESP8266: socket receive notify count */
+    /* ESP8266: Maintain socket notify count */
 #if 0
     /* Reserved.  */
     CHAR        reserved;
 #else
+    CHAR        nx_wifi_tcp_socket_disconnect_notify;
     CHAR        nx_wifi_socket_receive_notify;
 #endif
     
@@ -125,8 +126,14 @@ static CHAR                         nx_wifi_buffer[ESP_CFG_IPDBUF_SIZE];
 /* Define the wifi thread.  */
 static void    nx_wifi_thread_entry(ULONG thread_input);
 
+/* ESP8266: Link close callback */
+static void nxesp_close_handler(void *Ctx, uint8_t LinkID);
+
 /* ESP8266: Data receive callback */
 static void nxesp_datarecv_handler(void *Ctx, uint8_t LinkID, uint8_t *Data, uint16_t Size);
+
+/* ESP8266: Notify tcp socket disconnect */
+static void nx_notify_tcp_socket_disconnect(uint8_t entry_index);
 
 /* ESP8266: Notify socket receive */
 static void nx_notify_socket_receive(uint8_t entry_index);
@@ -136,12 +143,17 @@ static UINT nx_wifi_udp_client_socket_connect(NX_UDP_SOCKET *socket_ptr,
                                               UCHAR entry_index,
                                               NXD_ADDRESS *server_ip,
                                               UINT server_port);
-                                        
+
+/* ESP8266: Link close callback context */
+typedef struct {
+    uint8_t dummy;      // Avoid null struct
+} NXESP_CLOSE_CTX;
+NXESP_CLOSE_CTX nxesp_close_ctx;
+
 /* ESP8266: Data receive callback context */
 typedef struct {
     uint8_t dummy;      // Avoid null struct
 } NXESP_DATARECV_CTX;
-
 NXESP_DATARECV_CTX nxesp_datarecv_ctx;
 
 /**************************************************************************/ 
@@ -198,10 +210,17 @@ UINT    status;
             return NX_NOT_SUCCESSFUL;
         }
 
-        /* Reset data receive callback context */
-        memset(&nxesp_datarecv_ctx, 0x00, sizeof(nxesp_datarecv_ctx));
+        /* Install link close callback */
+        memset(&nxesp_close_ctx, 0x00, sizeof(nxesp_close_ctx));
+        esp_status = ESP_WIFI_InstallCloseCallback(nxesp_close_handler, &nxesp_close_ctx);
+        if (esp_status != ESP_WIFI_STATUS_OK) {
+            ESP_LOG_CRIT("Fail to install link close callback (%d)\r\n", esp_status);
+            status = NX_NOT_SUCCESSFUL;
+            return NX_NOT_SUCCESSFUL;
+        }
 
         /* Install data receive callback */
+        memset(&nxesp_datarecv_ctx, 0x00, sizeof(nxesp_datarecv_ctx));
         esp_status = ESP_WIFI_InstallDataRecvCallback(nxesp_datarecv_handler, &nxesp_datarecv_ctx);
         if (esp_status != ESP_WIFI_STATUS_OK) {
             ESP_LOG_CRIT("Fail to install data receive callback (%d)\r\n", esp_status);
@@ -330,6 +349,9 @@ ESP_WIFI_Status_t   status;
                         /* ESP8266: Reactive receive +IPD data */
                         status = ESP_WIFI_Recv2(i, NULL, 0, NULL, WIFI_READ_TIMEOUT);
                     }
+
+                    /* ESP8266: Notify tcp socket disconnect */
+                    nx_notify_tcp_socket_disconnect(i);
 
                     /* ESP8266: Notify socket receive */
                     nx_notify_socket_receive(i);
@@ -907,7 +929,8 @@ UCHAR   entry_index;
     nx_wifi_socket[entry_index].nx_wifi_socket_valid = 1;
     nx_wifi_socket[entry_index].nx_wifi_socket_type = NX_WIFI_TCP_SOCKET; 
     nx_wifi_socket[entry_index].nx_wifi_socket_connected = 0;
-    /* ESP8266: Reset socket receive notify count */
+    /* ESP8266: Reset socket notify count */
+    nx_wifi_socket[entry_index].nx_wifi_tcp_socket_disconnect_notify = 0;
     nx_wifi_socket[entry_index].nx_wifi_socket_receive_notify = 0;
     nx_wifi_socket_counter++;
     
@@ -920,7 +943,13 @@ UCHAR   entry_index;
 
         nx_wifi_tick_convert_ms(wait_option, &wait_millisecond); 
         ESP_LOG_WARN("Ignore TCP link local port(%d)\r\n", socket_ptr->nx_tcp_socket_port);
-        status = ESP_WIFI_OpenClientConnection2(entry_index, ESP_WIFI_TCP, (uint8_t *) &server_ip -> nxd_ip_address.v4, server_port, 0, wait_millisecond);
+        if (wait_millisecond) {
+            status = ESP_WIFI_OpenClientConnection2(entry_index, ESP_WIFI_TCP, (uint8_t *) &server_ip -> nxd_ip_address.v4, server_port, 0, wait_millisecond);
+        } else {
+            /* No support for non-blocking connect, deteriorate to timed-wait of default timeout */
+            ESP_LOG_WARN("No support for non-blocking connect, deteriorate to timed-wait\r\n");
+            status = ESP_WIFI_OpenClientConnection(entry_index, ESP_WIFI_TCP, (uint8_t *) &server_ip -> nxd_ip_address.v4, server_port, 0);
+        }
     }
 
     /* Swap the address.  */
@@ -940,6 +969,15 @@ UCHAR   entry_index;
         
         /* Release the IP internal mutex before processing the IP event.  */
         tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
+        
+#ifndef NX_DISABLE_EXTENDED_NOTIFY_SUPPORT
+        /* If registered with the TCP socket, call the application's connection completion callback function.  */
+        if (socket_ptr -> nx_tcp_establish_notify) {
+            /* Call the application's establish callback function.    */
+            socket_ptr -> nx_tcp_establish_notify(socket_ptr);
+        }
+#endif
+
         return(NX_SUCCESS); 
     }
     else
@@ -1025,7 +1063,22 @@ UCHAR   entry_index;
         ULONG   wait_millisecond;
 
         nx_wifi_tick_convert_ms(wait_option, &wait_millisecond); 
-        ESP_WIFI_CloseClientConnection2(entry_index, wait_millisecond);
+        if (wait_millisecond) {
+            ESP_WIFI_CloseClientConnection2(entry_index, wait_millisecond);
+        } else {
+            /* No support for non-blocking disconnect, deteriorate to timed-wait of default timeout */
+            ESP_LOG_WARN("No support for non-blocking disconnect, deteriorate to timed-wait\r\n");
+            ESP_WIFI_CloseClientConnection(entry_index);
+        }
+
+#ifndef NX_DISABLE_EXTENDED_NOTIFY_SUPPORT
+        /* Is a disconnect complete callback registered with the TCP socket? */
+        if (socket_ptr->nx_tcp_disconnect_complete_notify) {
+            /* Notify the application through the socket disconnect_complete callback */
+            socket_ptr->nx_tcp_disconnect_complete_notify(socket_ptr);
+        }
+#endif
+
     }
 
     /* Reset the entry.  */   
@@ -1262,7 +1315,8 @@ UCHAR       entry_index;
     nx_wifi_socket[entry_index].nx_wifi_socket_valid = 1;
     nx_wifi_socket[entry_index].nx_wifi_socket_type = NX_WIFI_UDP_SOCKET;
     nx_wifi_socket[entry_index].nx_wifi_socket_connected = 0;
-    /* ESP8266: Reset socket receive notify count */
+    /* ESP8266: Reset socket notify count */
+    nx_wifi_socket[entry_index].nx_wifi_tcp_socket_disconnect_notify = 0;
     nx_wifi_socket[entry_index].nx_wifi_socket_receive_notify = 0;
     nx_wifi_socket_counter++;
 
@@ -1550,6 +1604,28 @@ UCHAR       entry_index;
     return(nx_wifi_socket_receive((VOID*)socket_ptr, packet_ptr, wait_option, NX_WIFI_UDP_SOCKET));
 } 
 
+/* ESP8266: Link close callback */
+static void nxesp_close_handler(void *Ctx, uint8_t LinkID)
+{
+    //TX_INTERRUPT_SAVE_AREA
+    UCHAR entry_index = LinkID;
+    NXESP_CLOSE_CTX *close_ctx = (NXESP_CLOSE_CTX *) Ctx;
+
+    ESP_ASSERT(close_ctx);
+    ESP_ASSERT(close_ctx == &nxesp_close_ctx);
+
+    /* Check link ID */
+    if (LinkID >= NX_WIFI_SOCKET_COUNTER) {
+        ESP_LOG_CRIT("Parameter error in link close callback: LinkID(%d)\r\n", LinkID);
+        return;
+    }
+
+    /* Defer tcp socket disconnect notify to outside; Otherwise, recursive into ESP8266 driver. */
+    nx_wifi_socket[entry_index].nx_wifi_tcp_socket_disconnect_notify ++;
+
+    return;
+}
+
 /* ESP8266: Data receive callback */
 static void nxesp_datarecv_handler(void *Ctx, uint8_t LinkID, uint8_t *Data, uint16_t Size)
 {
@@ -1561,7 +1637,7 @@ static void nxesp_datarecv_handler(void *Ctx, uint8_t LinkID, uint8_t *Data, uin
     ESP_ASSERT(datarecv_ctx);
     ESP_ASSERT(datarecv_ctx == &nxesp_datarecv_ctx);
 
-    /* Remaining +IPD data for reactive receive */
+    /* Check link ID */
     if (LinkID >= NX_WIFI_SOCKET_COUNTER) {
         ESP_LOG_CRIT("Parameter error in data receive callback: LinkID(%d)\r\n", LinkID);
         return;
@@ -1620,6 +1696,35 @@ static void nxesp_datarecv_handler(void *Ctx, uint8_t LinkID, uint8_t *Data, uin
 
         /* Defer socket receive notify to outside; Otherwise, recursive into ESP8266 driver. */
         nx_wifi_socket[entry_index].nx_wifi_socket_receive_notify ++;
+    }
+}
+
+/* ESP8266: Notify tcp socket disconnect */
+static void nx_notify_tcp_socket_disconnect(uint8_t entry_index)
+{
+    NX_TCP_SOCKET   *tcp_socket;
+
+    if (nx_wifi_socket[entry_index].nx_wifi_tcp_socket_disconnect_notify) {
+        nx_wifi_socket[entry_index].nx_wifi_tcp_socket_disconnect_notify = 0;
+    } else {
+        return;
+    }
+
+    /* Check the socket type.  */
+    if (nx_wifi_socket[entry_index].nx_wifi_socket_type == NX_WIFI_TCP_SOCKET)
+    {
+                            
+        /* Get the tcp socket.  */
+        tcp_socket = (NX_TCP_SOCKET *)nx_wifi_socket[entry_index].nx_wifi_socket_ptr;
+        
+        /* Determine if there is a tcp socket disconnect notification function specified.  */
+        if (tcp_socket -> nx_tcp_disconnect_callback)
+        {
+
+            /* Yes, notification is requested.  Call the application's disconnect notification
+               function for this socket.  */
+            (tcp_socket -> nx_tcp_disconnect_callback)(tcp_socket);
+        }
     }
 }
 

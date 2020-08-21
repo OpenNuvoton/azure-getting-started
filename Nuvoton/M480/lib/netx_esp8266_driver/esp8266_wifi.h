@@ -91,6 +91,7 @@ typedef enum {
     ESP_WIFI_SOFTAP_STATION     = 3
 } ESP_WIFI_Mode_t;
 
+typedef void (*ESP_WIFI_CloseCallback_t)(void *Ctx, uint8_t LinkID);
 typedef void (*ESP_WIFI_DataRecvCallback_t)(void *Ctx, uint8_t LinkID, uint8_t *Data, uint16_t Size);
 
 /** ESP8266 firmware AT version
@@ -125,6 +126,11 @@ typedef struct {
  * @retval Operation status
  */
 ESP_WIFI_Status_t ESP_WIFI_Init( void );
+
+/**
+ * @brief  Install close callback on link close
+ */
+ESP_WIFI_Status_t ESP_WIFI_InstallCloseCallback( ESP_WIFI_CloseCallback_t Callback, void *Ctx );
 
 /**
  * @brief  Install data receive callback on reactive receive
