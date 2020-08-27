@@ -19,6 +19,7 @@ The following board specific guides will get you started with Azure RTOS:
 * Getting started with the [NXP MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
 * Getting started with the [Renesas AE-Cloud2](Renesas/Synergy)
 * Getting started with the [STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
+* Getting started with the [Nuvoton NuMaker-IoT-M487](Nuvoton)
 
 Once you have successfully completed a guide, please read [Using Azure RTOS in the Getting Started Guides](/docs/using-azure-rtos.md) for information on how the guides use Azure RTOS to connect with Azure IoT.
 
