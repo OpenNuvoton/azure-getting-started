@@ -13,3 +13,6 @@
 [submodule "core/lib/filex"]
 	path = core/lib/filex
 	url = https://github.com/cyliangtw/azure-filex
+[submodule "core/lib/usbx"]
+	path = core/lib/usbx
+	url = https://github.com/cyliangtw/azure-usbx
