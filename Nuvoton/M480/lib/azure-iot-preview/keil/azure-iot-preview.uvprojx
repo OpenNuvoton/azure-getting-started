@@ -336,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>NX_AZURE_DISABLE_IOT_SECURITY_MODULE NX_AZURE_IOT_PROVISIONING_CLIENT_CONNECT_WAIT_OPTION="(40 * NX_IP_PERIODIC_RATE)"</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\..\core\lib\threadx\common\inc;..\..\..\..\..\core\lib\threadx\ports\cortex_m4\keil\inc;..\..\netxduo_wifi\common\inc;..\..\netxduo_wifi\ports\cortex_m4\keil\inc;..\..\netxduo_wifi\addons\dns;..\..\netxduo_wifi\addons\mqtt;..\..\netxduo_wifi\nx_secure\inc;..\..\netxduo_wifi\nx_secure\ports;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot;..\..\..\..\..\core\lib\azure-iot-preview\nx_cloud;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot\azure-sdk-for-c\sdk\inc;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot\azure-sdk-for-c\sdk\inc\azure\core;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot\azure-sdk-for-c\sdk\inc\azure\core\internal;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot\azure-sdk-for-c\sdk\inc\azure\iot;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot\azure-sdk-for-c\sdk\inc\azure\iot\internal;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot\azure-sdk-for-c\sdk\inc\azure\storage;..\..\..\..\..\core\lib\azure-iot-preview\azure_iot\azure-sdk-for-c\sdk\inc\azure\storage\internal</IncludePath>
             </VariousControls>
