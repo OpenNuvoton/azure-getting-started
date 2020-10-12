@@ -186,6 +186,19 @@ Being clone of azure-iot-preview sample, all its guide can apply to this sample.
     Telemetry message send: {"Message ID":437}.
     </pre>
 
+
+### demo_usbd_hid
+
+This sample shows usb mouse thru usb hid.
+
+1.  Open `demo_usbd_hid/keil/demo_usbd_hid.uvproj` Keil project file.
+
+### demo_usbd_storage
+
+This sample shows usb disk thru usb mass torage.
+
+1.  Open `demo_usbd_storage/keil/demo_usbd_storage.uvproj` Keil project file.
+    
 ## Known issue or limitation
 
 1.  To use WiFi modulee with its own network stack, the Azure RTOS team has officially given an [adapted netxduo for WiFi](https://github.com/azure-rtos/getting-started/tree/master/STMicroelectronics/STM32L4_L4%2B/lib/netxduo).
